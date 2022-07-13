@@ -1,19 +1,17 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Text,
-  Link,
-  HStack,
   Center,
-  Heading,
-  Switch,
-  useColorMode,
   NativeBaseProvider,
   extendTheme,
   VStack,
   Box,
+  Image,
 } from "native-base";
-import NativeBaseIcon from "./components/NativeBaseIcon";
-import { Platform } from "react-native";
+import { useFonts } from "expo-font";
+import MenuNavbar from "./components/Menu";
+import { useGetDatas } from "./hooks/useGetDatas";
+import { Card } from "./components/Card";
 
 // Define the config
 const config = {
@@ -25,61 +23,70 @@ const config = {
 export const theme = extendTheme({ config });
 
 export default function App() {
+  const [data, setData] = useState([]);
+  const [cart, setCart] = useState(0);
+
+  const [loaded] = useFonts({
+    OpenSans: require("./assets/fonts/OpenSans-Medium.ttf"),
+  });
+
+  useEffect(() => {
+    useGetDatas(setData);
+  }, []);
+
+  const handleCartItems = () => {
+    setCart(cart + 1);
+  };
+
   return (
     <NativeBaseProvider>
-      <Center
-        _dark={{ bg: "blueGray.900" }}
-        _light={{ bg: "blueGray.50" }}
-        px={4}
-        flex={1}
-      >
-        <VStack space={5} alignItems="center">
-          <NativeBaseIcon />
-          <Heading size="lg">Welcome to NativeBase</Heading>
-          <HStack space={2} alignItems="center">
-            <Text>Edit</Text>
-            <Box
-              _web={{
-                _text: {
-                  fontFamily: "monospace",
-                  fontSize: "sm",
-                },
-              }}
-              px={2}
-              py={1}
-              _dark={{ bg: "blueGray.800" }}
-              _light={{ bg: "blueGray.200" }}
-            >
-              App.js
-            </Box>
-            <Text>and save to reload.</Text>
-          </HStack>
-          <Link href="https://docs.nativebase.io" isExternal>
-            <Text color="primary.500" underline fontSize={"xl"}>
-              Learn NativeBase
-            </Text>
-          </Link>
-          <ToggleDarkMode />
-        </VStack>
-      </Center>
-    </NativeBaseProvider>
-  );
-}
+      <Box style={{ fontFamily: "OpenSans" }}>
+        <MenuNavbar cart={cart} />
+        <Image
+          source={{
+            uri: "https://1.bp.blogspot.com/-1Qj6COPcux0/XtSPCdq2JYI/AAAAAAAAiFc/sVslU24JcZoHbJD703YIQvGVAIimZTqNgCLcBGAsYHQ/w640-h426/cursos-gratis-aprender-dibujar-todos-niveles.jpeg",
+          }}
+          alt="Alternate Text"
+          size="xl"
+          w="100%"
+          marginBottom="4"
+        />
 
-// Color Switch Component
-function ToggleDarkMode() {
-  const { colorMode, toggleColorMode } = useColorMode();
-  return (
-    <HStack space={2} alignItems="center">
-      <Text>Dark</Text>
-      <Switch
-        isChecked={colorMode === "light"}
-        onToggle={toggleColorMode}
-        aria-label={
-          colorMode === "light" ? "switch to dark mode" : "switch to light mode"
-        }
-      />
-      <Text>Light</Text>
-    </HStack>
+        <Center
+          _dark={{ bg: "blueGray.900" }}
+          _light={{ bg: "blueGray.50" }}
+          px={4}
+          flex={1}
+        >
+          <VStack space={5} alignItems="center">
+            <Box alignItems="center">
+              <Box position="absolute" zIndex="99" top="-125px">
+                <Text color="#fff" fontSize="14px">
+                  NUEVO CURSO
+                </Text>
+                <Text color="#fff" fontSize="20px" fontWeight="700">
+                  TÉCNICAS DE ILUSTRACIÓN PARA LIBROS INFANTILES
+                </Text>
+                <Text color="#fff" fontSize="14px">
+                  Ver más
+                </Text>
+              </Box>
+              {data.map((item) => (
+                <Card
+                  image={item.images[0]}
+                  title={item.title}
+                  description={item.description}
+                  handleCartItems={handleCartItems}
+                  price={item.price}
+                  key={item.id}
+                  category={item.category}
+                />
+              ))}
+            </Box>
+            ;
+          </VStack>
+        </Center>
+      </Box>
+    </NativeBaseProvider>
   );
 }
